@@ -8,6 +8,7 @@
 #   - TCP + UDP on the same port
 #   - Optional outbound interface / IPv4 binding
 #   - systemd auto-start
+#   - Automatic ss:// share link output
 #
 # Usage:
 #   bash install.sh
@@ -16,7 +17,7 @@
 #   bash install.sh --port 12074 --out-ip 1.2.3.4
 #
 # One-line GitHub usage:
-#   bash <(curl -fsSL https://raw.githubusercontent.com/USER/REPO/main/install.sh)
+#   bash <(curl -fsSL https://raw.githubusercontent.com/Zhanghaoy01/SS/main/install.sh)
 #
 
 set -Eeuo pipefail
@@ -195,6 +196,14 @@ if [[ -z "$PUBLIC_IP" ]]; then
     PUBLIC_IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
 fi
 
+# SIP002/legacy-compatible userinfo for "none:none".
+SS_USERINFO="bm9uZTpub25l"
+if [[ -n "$PUBLIC_IP" ]]; then
+    SS_LINK="ss://${SS_USERINFO}@${PUBLIC_IP}:${PORT}#SS-NONE"
+else
+    SS_LINK="ss://${SS_USERINFO}@YOUR_SERVER_IP:${PORT}#SS-NONE"
+fi
+
 echo
 echo "=================================================="
 echo " Shadowsocks NONE installation completed"
@@ -215,6 +224,9 @@ echo "  server   = ${PUBLIC_IP:-YOUR_SERVER_IP}"
 echo "  port     = ${PORT}"
 echo "  method   = none"
 echo "  password = none"
+echo
+echo "SS share link:"
+echo "  ${SS_LINK}"
 echo
 echo "Useful commands:"
 echo "  systemctl status sing-box"
